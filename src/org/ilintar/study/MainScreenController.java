@@ -1,13 +1,11 @@
 package org.ilintar.study;
 
-import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.Node;
-import javafx.scene.control.Button;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.text.Text;
 import org.ilintar.study.question.*;
-import org.ilintar.study.question.event.QuestionAnsweredEventListener;
+import org.ilintar.study.question.event.RadioQuestionAnswerListener;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -93,32 +91,11 @@ public class MainScreenController {
 
     private Node createQuestion(List<String> questionLines, String questionType) {
         Question q = factoryMap.get(questionType).createQuestion(questionLines);
-        q.addQuestionAnsweredListener(new RadioQuestionAnswerListener());
+        q.addQuestionAnsweredListener(new RadioQuestionAnswerListener(answerHolder, this));
         return q.getRenderedQuestion();
     }
 
-    private class RadioQuestionAnswerListener implements QuestionAnsweredEventListener {
-
-        @Override
-        public void handleEvent(ActionEvent event) {
-            String answerCode = (String) ((Button) event.getSource()).getUserData();
-            if (answerCode != null) {
-                answerHolder.putAnswer(answerCode);
-                System.out.println(answerCode);
-                try {
-                    getNewQuestion();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-            else {
-                System.out.println("Dupa!");
-
-            }
-        }
-    }
-
-    private void getNewQuestion() throws IOException {
+    public void getNewQuestion() throws IOException {
         mainStudy.getChildren().remove(currentQuestionComponent);
         currentQuestionComponent = readNextQuestionFromFile();
         if (currentQuestionComponent == null) {
